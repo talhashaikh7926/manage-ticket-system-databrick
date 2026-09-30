@@ -12,7 +12,10 @@ PGHOST = os.environ.get("PGHOST")
 PGDATABASE = os.environ.get("PGDATABASE", "databricks_postgres")
 PGUSER = os.environ.get("PGUSER")
 PGPORT = os.environ.get("PGPORT", "5432")
-ENDPOINT_NAME = os.environ.get("ENDPOINT_NAME")
+ENDPOINT_NAME = os.environ.get(
+    "ENDPOINT_NAME",
+    "projects/ticketing-system/branches/production/endpoints/primary",
+)
 
 
 def get_connection():
