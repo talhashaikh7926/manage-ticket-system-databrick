@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Management System</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 30px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 { font-size: 1.5rem; font-weight: 700; }
+        header .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 24px;
+        }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-header h2 { font-size: 1.1rem; font-weight: 600; }
+        .card-body { padding: 20px; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border 0.2s;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        textarea { resize: vertical; min-height: 60px; }
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-group { margin-bottom: 16px; }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { opacity: 0.9; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { opacity: 0.9; }
+        .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text-muted);
+        }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .ticket-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ticket-item:hover { background: #f1f5f9; }
+        .ticket-item.active { background: #eef2ff; border-left: 3px solid var(--primary); }
+        .ticket-item:last-child { border-bottom: none; }
+        .ticket-info { flex: 1; }
+        .ticket-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+        .ticket-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 12px; }
+        .ticket-id { font-family: monospace; font-weight: 700; color: var(--primary); }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .status-open { background: #dbeafe; color: #1e40af; }
+        .status-in_progress { background: #fef3c7; color: #92400e; }
+        .status-closed { background: #d1fae5; color: #065f46; }
+        .status-resolved { background: #e0e7ff; color: #3730a3; }
+        .detail-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .detail-empty .icon { font-size: 3rem; margin-bottom: 12px; }
+        .ticket-detail-header { padding: 20px; border-bottom: 1px solid var(--border); }
+        .ticket-detail-header h3 { font-size: 1.2rem; margin-bottom: 8px; }
+        .ticket-detail-meta {
+            display: flex; gap: 16px; font-size: 0.85rem; color: var(--text-muted);
+            margin-top: 8px; flex-wrap: wrap;
+        }
+        .ticket-detail-actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+        .messages-section { padding: 20px; }
+        .messages-section h4 {
+            font-size: 0.95rem; font-weight: 600; margin-bottom: 16px;
+            color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .message {
+            background: #f8fafc; border-left: 3px solid var(--primary);
+            padding: 12px 16px; border-radius: 8px; margin-bottom: 12px;
+        }
+        .message-author { font-weight: 600; font-size: 0.85rem; color: var(--primary); margin-bottom: 4px; }
+        .message-text { font-size: 0.9rem; color: var(--text); line-height: 1.5; }
+        .message-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
+        .message-form {
+            margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border);
+            display: flex; gap: 10px; align-items: flex-end;
+        }
+        .message-form .form-group { flex: 1; margin-bottom: 0; }
+        .message-form .btn { align-self: stretch; }
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white; border-radius: var(--radius); padding: 28px;
+            width: 90%; max-width: 480px; box-shadow: var(--shadow-lg);
+        }
+        .modal h3 { margin-bottom: 20px; font-size: 1.2rem; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; padding: 12px 24px;
+            border-radius: 8px; color: white; font-weight: 600; font-size: 0.9rem;
+            box-shadow: var(--shadow-lg); z-index: 200; opacity: 0;
+            transform: translateY(10px); transition: all 0.3s;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        .ticket-list { max-height: 600px; overflow-y: auto; }
+        .messages-list { max-height: 350px; overflow-y: auto; margin-bottom: 8px; }
+        .spinner { text-align: center; padding: 40px; color: var(--text-muted); }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Ticket Management System</h1>
+        <span class="badge" id="ticket-count-badge">0 tickets</span>
+    </header>
+    <div class="container">
+        <div>
+            <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header"><h2>New Ticket</h2></div>
+                <div class="card-body">
+                    <form id="create-ticket-form">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="ticket-title" placeholder="Brief description of the issue" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Created By</label>
+                            <input type="text" id="ticket-created-by" placeholder="Your email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="ticket-status">
+                                <option value="open">Open</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;">Create Ticket</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h2>All Tickets</h2>
+                    <button class="btn btn-outline btn-sm" onclick="loadTickets()">Refresh</button>
+                </div>
+                <div class="ticket-list" id="ticket-list">
+                    <div class="spinner">Loading tickets...</div>
+                </div>
+            </div>
+        </div>
+        <div class="card" id="detail-panel">
+            <div class="detail-empty">
+                <div class="icon">👈</div>
+                <p>Select a ticket to view details and messages</p>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal">
+            <h3>Delete Ticket</h3>
+            <p style="color:var(--text-muted);">Are you sure? All messages will also be removed.</p>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeDeleteModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script>
+        let selectedTicketId = null;
+        let pendingDeleteId = null;
+
+        async function apiCall(url, method='GET', body=null) {
+            const opts = { method, headers: {} };
+            if (body) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+            const res = await fetch(url, opts);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Request failed');
+            return data;
+        }
+
+        function showToast(msg, type='success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type + ' show';
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+        }
+        function formatDate(d) {
+            if (!d) return '';
+            const date = new Date(d);
+            return date.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' ' + date.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+        }
+        function formatStatus(s) { return s ? s.replace(/_/g,' ') : ''; }
+
+        async function loadTickets() {
+            const list = document.getElementById('ticket-list');
+            list.innerHTML = '<div class="spinner">Loading...</div>';
+            try {
+                const tickets = await apiCall('/tickets');
+                document.getElementById('ticket-count-badge').textContent = tickets.length + ' ticket' + (tickets.length !== 1 ? 's' : '');
+                if (tickets.length === 0) {
+                    list.innerHTML = '<div class="empty-state">No tickets yet. Create one above!</div>';
+                    return;
+                }
+                list.innerHTML = tickets.map(t => `
+                    <div class="ticket-item ${t.ticket_id === selectedTicketId ? 'active' : ''}" onclick="selectTicket(${t.ticket_id})">
+                        <div class="ticket-info">
+                            <div class="ticket-title">${escapeHtml(t.title)}</div>
+                            <div class="ticket-meta">
+                                <span class="ticket-id">#${t.ticket_id}</span>
+                                <span>${escapeHtml(t.created_by||'unknown')}</span>
+                                <span>${formatDate(t.created_at)}</span>
+                            </div>
+                        </div>
+                        <span class="status-badge status-${t.status}">${formatStatus(t.status)}</span>
+                    </div>`).join('');
+            } catch(e) {
+                list.innerHTML = '<div class="empty-state">Error: ' + escapeHtml(e.message) + '</div>';
+            }
+        }
+
+        async function selectTicket(id) {
+            selectedTicketId = id;
+            loadTickets();
+            await loadTicketDetail(id);
+        }
+
+        async function loadTicketDetail(id) {
+            const panel = document.getElementById('detail-panel');
+            panel.innerHTML = '<div class="spinner">Loading ticket...</div>';
+            try {
+                const [ticket, messages] = await Promise.all([apiCall('/tickets/'+id), apiCall('/tickets/'+id+'/messages')]);
+                panel.innerHTML = `
+                    <div class="ticket-detail-header">
+                        <h3>${escapeHtml(ticket.title)}</h3>
+                        <div class="ticket-detail-meta">
+                            <span class="ticket-id">#${ticket.ticket_id}</span>
+                            <span class="status-badge status-${ticket.status}">${formatStatus(ticket.status)}</span>
+                            <span>${escapeHtml(ticket.created_by||'N/A')}</span>
+                            <span>${formatDate(ticket.created_at)}</span>
+                        </div>
+                        <div class="ticket-detail-actions">
+                            <select id="status-select" onchange="updateStatus(${id})" style="width:auto;padding:6px 12px;font-size:0.85rem;">
+                                <option value="open" ${ticket.status==='open'?'selected':''}>Open</option>
+                                <option value="in_progress" ${ticket.status==='in_progress'?'selected':''}>In Progress</option>
+                                <option value="resolved" ${ticket.status==='resolved'?'selected':''}>Resolved</option>
+                                <option value="closed" ${ticket.status==='closed'?'selected':''}>Closed</option>
+                            </select>
+                            <button class="btn btn-danger btn-sm" onclick="openDeleteModal(${id})">Delete</button>
+                        </div>
+                    </div>
+                    <div class="messages-section">
+                        <h4>Messages (${messages.length})</h4>
+                        <div class="messages-list">
+                            ${messages.length === 0
+                                ? '<div class="empty-state" style="padding:20px;">No messages yet. Start the conversation below!</div>'
+                                : messages.map(m => `
+                                    <div class="message">
+                                        <div class="message-author">${escapeHtml(m.author)}</div>
+                                        <div class="message-text">${escapeHtml(m.message_text)}</div>
+                                        <div class="message-time">${formatDate(m.created_at)}</div>
+                                    </div>`).join('')}
+                        </div>
+                        <div class="message-form">
+                            <div class="form-group">
+                                <input type="text" id="msg-author" placeholder="Your name" value="${escapeHtml(ticket.created_by||'')}">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="msg-text" placeholder="Type a message..." onkeypress="if(event.key==='Enter')addMessage(${id})">
+                            </div>
+                            <button class="btn btn-primary" onclick="addMessage(${id})">Send</button>
+                        </div>
+                    </div>`;
+            } catch(e) {
+                panel.innerHTML = '<div class="empty-state">Error: ' + escapeHtml(e.message) + '</div>';
+            }
+        }
+
+        document.getElementById('create-ticket-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('ticket-title').value.trim();
+            const created_by = document.getElementById('ticket-created-by').value.trim();
+            const status = document.getElementById('ticket-status').value;
+            if (!title || !created_by) { showToast('Please fill in all fields','error'); return; }
+            try {
+                await apiCall('/tickets','POST',{title,status,created_by});
+                document.getElementById('ticket-title').value = '';
+                showToast('Ticket created!');
+                loadTickets();
+            } catch(e) { showToast(e.message,'error'); }
+        });
+
+        async function updateStatus(id) {
+            const status = document.getElementById('status-select').value;
+            try {
+                await apiCall('/tickets/'+id,'PATCH',{status});
+                showToast('Status updated!');
+                loadTickets();
+            } catch(e) { showToast(e.message,'error'); }
+        }
+
+        async function addMessage(ticketId) {
+            const textEl = document.getElementById('msg-text');
+            const authorEl = document.getElementById('msg-author');
+            const text = textEl.value.trim();
+            const author = authorEl.value.trim();
+            if (!text) { showToast('Message cannot be empty','error'); return; }
+            if (!author) { showToast('Please enter your name','error'); return; }
+            try {
+                await apiCall('/tickets/'+ticketId+'/messages','POST',{message_text:text,author:author});
+                textEl.value = '';
+                showToast('Message sent!');
+                loadTicketDetail(ticketId);
+            } catch(e) { showToast(e.message,'error'); }
+        }
+
+        function openDeleteModal(id) { pendingDeleteId = id; document.getElementById('delete-modal').classList.add('show'); }
+        function closeDeleteModal() { pendingDeleteId = null; document.getElementById('delete-modal').classList.remove('show'); }
+        async function confirmDelete() {
+            if (!pendingDeleteId) return;
+            try {
+                await apiCall('/tickets/'+pendingDeleteId,'DELETE');
+                closeDeleteModal();
+                showToast('Ticket deleted!');
+                selectedTicketId = null;
+                document.getElementById('detail-panel').innerHTML = '<div class="detail-empty"><div class="icon">👈</div><p>Select a ticket to view details and messages</p></div>';
+                loadTickets();
+            } catch(e) { showToast(e.message,'error'); }
+        }
+
+        document.getElementById('delete-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'delete-modal') closeDeleteModal();
+        });
+
+        loadTickets();
+    </script>
+</body>
+</html>

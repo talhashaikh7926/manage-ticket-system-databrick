@@ -1,0 +1,9 @@
+command:
+  - python
+  - app.py
+
+resources:
+  - name: lakebase-ticketing
+    type: lakebase
+    project: ticketing-system
+    branch: production
