@@ -7,3 +7,8 @@ resources:
     type: lakebase
     project: ticketing-system
     branch: production
+
+env:
+  - name: ENDPOINT_NAME
+    value: 'projects/ticketing-system/branches/production/endpoints/primary'
+

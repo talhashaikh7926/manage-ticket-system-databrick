@@ -17,16 +17,12 @@ PGHOST = os.environ.get("PGHOST")
 PGDATABASE = os.environ.get("PGDATABASE", "databricks_postgres")
 PGUSER = os.environ.get("PGUSER")
 PGPORT = os.environ.get("PGPORT", "5432")
-DATABRICKS_CLIENT_ID = os.environ.get("DATABRICKS_CLIENT_ID")
+ENDPOINT_NAME = os.environ.get("ENDPOINT_NAME")
 
 
 def get_oauth_token():
     """Generate a short-lived OAuth token for Lakebase authentication."""
-    token_response = _w.dbutils.secrets.get_token(
-        application_id=DATABRICKS_CLIENT_ID,
-        lifetime_seconds=3600  # 1 hour
-    )
-    return token_response.token_value
+    return _w.postgres.generate_database_credential(endpoint=ENDPOINT_NAME).token
 
 
 def get_connection():
