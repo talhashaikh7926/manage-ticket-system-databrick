@@ -27,8 +27,8 @@ def create_ticket(title, status, created_by):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO ticketing_system_schema.tickets (title, status, created_by)
-                VALUES (%s, %s, %s)
+                INSERT INTO ticketing_system_schema.tickets (title, status, created_by, created_at)
+                VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
                 RETURNING ticket_id, title, status, created_by, created_at
             """, (title, status, created_by))
             ticket = cur.fetchone()
