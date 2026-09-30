@@ -17,8 +17,8 @@ def create_message(ticket_id, message_text, author):
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO ticketing_system_schema.ticket_messages (ticket_id, message_text, author)
-                VALUES (%s, %s, %s)
+                INSERT INTO ticketing_system_schema.ticket_messages (ticket_id, message_text, author, created_at)
+                VALUES (%s, %s, %s, CURRENT_TIMESTAMP)
                 RETURNING message_id, ticket_id, message_text, author, created_at
             """, (ticket_id, message_text, author))
             message = cur.fetchone()
