@@ -2,8 +2,8 @@ import os
 import logging
 from flask import Flask, jsonify, request, render_template
 from databricks.sdk import WorkspaceClient
-import psycopg2
-from psycopg2.extras import RealDictCursor
+import psycopg
+from psycopg.rows import dict_row
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ticketing-app")
@@ -29,15 +29,15 @@ def get_connection():
     """Create a psycopg2 connection to Lakebase using OAuth token."""
     token = get_oauth_token()
     
-    conn = psycopg2.connect(
+    conn = psycopg.connect(
         host=PGHOST,
         port=PGPORT,
-        database=PGDATABASE,
+        dbname=PGDATABASE,
         user=PGUSER,
         password=token,
         sslmode="require",
-        cursor_factory=RealDictCursor
     )
+    conn.row_factory = dict_row
     return conn
 
 
