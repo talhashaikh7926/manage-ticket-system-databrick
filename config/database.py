@@ -14,7 +14,7 @@ PGUSER = os.environ.get("PGUSER")
 PGPORT = os.environ.get("PGPORT", "5432")
 ENDPOINT_NAME = os.environ.get(
     "ENDPOINT_NAME",
-    "projects/ticketing-system/branches/child-lakebase/endpoints/primary",
+    "projects/ticketing-system/branches/production/endpoints/primary",
 )
 
 
