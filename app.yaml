@@ -1,0 +1,14 @@
+command:
+  - python
+  - app.py
+
+resources:
+  - name: lakebase-ticketing
+    type: lakebase
+    project: ticketing-system
+    branch: child-lakebase
+
+env:
+  - name: ENDPOINT_NAME
+    value: 'projects/ticketing-system/branches/child-lakebase/endpoints/primary'
+
