@@ -6,9 +6,9 @@ resources:
   - name: lakebase-ticketing
     type: lakebase
     project: ticketing-system
-    branch: child-lakebase
+    branch: production
 
 env:
   - name: ENDPOINT_NAME
-    value: 'projects/ticketing-system/branches/child-lakebase/endpoints/primary'
+    value: 'projects/ticketing-system/branches/production/endpoints/primary'
 

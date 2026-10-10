@@ -6,5 +6,5 @@ resources:
   - name: lakebase-ticketing
     type: lakebase
     project: ticketing-system
-    branch: child-lakebase
+    branch: production
 

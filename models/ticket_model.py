@@ -54,6 +54,11 @@ def update_ticket(ticket_id, updates, params):
 def delete_ticket(ticket_id):
     with get_connection() as conn:
         with conn.cursor() as cur:
+            # Delete child records first to avoid FK constraint violation
+            cur.execute(
+                "DELETE FROM ticketing_system_schema.ticket_messages WHERE ticket_id = %s",
+                (ticket_id,)
+            )
             cur.execute(
                 "DELETE FROM ticketing_system_schema.tickets WHERE ticket_id = %s RETURNING ticket_id",
                 (ticket_id,)
